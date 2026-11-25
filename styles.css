@@ -1,0 +1,223 @@
+/* Wireframe style: thin outlines, one typeface, greyscale apart from the factor type colours.
+   Change the look here. */
+:root {
+  --ink: #222222;        /* outlines and text */
+  --muted: #777777;      /* labels and tags */
+  --paper: #ffffff;      /* every fill */
+  --wash: #eeeeee;       /* hover and notice background */
+  --band-near: #e2e2e2;  /* realm of influence: closest to the aim, easy to influence */
+  --band-mid: #eeeeee;
+  --band-far: #f8f8f8;   /* furthest from the aim, hard to influence */
+  /* Factor type colours, in the order of the type list in js/config.js.
+     Each type has a very light fill and a vivid outline of the same colour. */
+  --type-1: #fdece8;  --type-1-line: #e0492b;   /* People */
+  --type-2: #fdf3d9;  --type-2-line: #e09a00;   /* Culture */
+  --type-3: #f1f7da;  --type-3-line: #7a9a00;   /* Rules */
+  --type-4: #dff4ef;  --type-4-line: #0e9f85;   /* Structures */
+  --type-5: #e2effc;  --type-5-line: #1f78d8;   /* Money */
+  --type-6: #eeeafa;  --type-6-line: #6a4fd0;   /* Technology */
+  --type-7: #f3ece2;  --type-7-line: #9a6b34;   /* Wider trends */
+  --type-own: #f0f0f0;  --type-own-line: #777777;   /* a type the broker wrote themselves */
+  --line: 1.2;           /* outline width on the board, in board units */
+  --line-heavy: 3;       /* outline width of the selected item or connection */
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --border: 1px solid var(--ink);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex;
+  flex-direction: column;
+  font: 13px/1.55 var(--font);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border);
+  border-radius: 0;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+button:hover { background: var(--wash); }
+button[aria-expanded="true"], button[aria-expanded="true"]:hover,
+button[aria-pressed="true"], button[aria-pressed="true"]:hover { background: var(--ink); color: var(--paper); }
+button:disabled { color: #aaaaaa; border-color: #aaaaaa; background: var(--paper); cursor: default; }
+
+textarea, input[type="text"], select {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border);
+  border-radius: 0;
+  padding: 10px 12px;
+}
+textarea { resize: vertical; }
+input[type="range"] { display: block; width: 100%; margin: 10px 0 6px; accent-color: var(--ink); }
+
+/* Toolbar */
+#toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 16px 24px;
+  border-bottom: var(--border);
+}
+#toolbar .title { font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+#toolbar .group { display: flex; gap: 10px; }
+#toolbar .right { margin-left: auto; }
+
+#notice {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: var(--border);
+  background: var(--wash);
+}
+#notice-text { flex: 1; }
+
+/* Board */
+#stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+#board {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#board-hint {
+  position: absolute;
+  left: 24px;
+  bottom: 20px;
+  margin: 0;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Panels */
+.panel {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  width: 320px;
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  background: var(--paper);
+  border: var(--border);
+}
+.panel.left { left: 24px; border-top: 0; }     /* hangs from the toolbar, under the Instructions button */
+.panel.right { right: 24px; border-top: 0; }
+.panel .body { padding: 20px 22px 24px; }
+#instructions-list { margin: 0; padding-left: 18px; }
+#instructions-list li { margin-bottom: 16px; padding-left: 4px; }
+#instructions-tips { margin: 22px 0 0; padding: 20px 0 0 18px; border-top: var(--border); color: var(--muted); }
+#instructions-tips li { margin-bottom: 10px; padding-left: 4px; }
+
+/* Editors */
+.editor { position: absolute; z-index: 5; background: var(--paper); }
+.editor.form { width: 300px; padding: 24px; border: var(--border); }
+.editor.form .field { display: block; margin-bottom: 22px; }
+.editor.form .field > span,
+.editor.form legend {
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.editor.form fieldset { margin: 0 0 22px; padding: 0; border: 0; }
+.editor.form .choice { display: block; padding: 4px 0; cursor: pointer; }
+.editor.form .scale-ends { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+.editor.form .actions { display: flex; justify-content: space-between; margin-top: 28px; }
+
+/* The large factor editor */
+.editor.form.factor {
+  width: min(1080px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  padding: 36px 52px 30px;
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.75);   /* fades the board behind it */
+}
+.editor.factor .quote { margin: 0 0 32px; padding: 16px 20px; border: 1px solid var(--ink); border-left-width: 4px; }
+.editor.factor .quote-head { display: flex; justify-content: space-between; font-size: 10px; }
+.editor.factor .quote-head span:first-child { text-transform: uppercase; letter-spacing: 1.5px; }
+.editor.factor .quote p { margin: 10px 0 0; white-space: pre-wrap; }
+.editor.factor .columns { display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; }
+.editor.factor .block { margin-bottom: 32px; }
+.editor.factor h3 { margin: 0 0 16px; font-size: 15px; font-weight: bold; }
+.editor.factor h3 + .prompt { margin: -8px 0 16px; font-size: 13px; color: var(--muted); }
+.editor.factor .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.editor.factor .card { position: relative; display: block; padding: 18px 16px; border: var(--border); cursor: pointer; }
+.editor.factor .card .edge { margin-bottom: 14px; }
+.editor.factor .card .edge svg { display: block; width: 100%; height: 12px; }
+.editor.factor .type .swatch { width: 18px; height: 18px; border: var(--border); }
+.editor.factor .card input { position: absolute; opacity: 0; pointer-events: none; }
+.editor.factor .card strong { display: block; margin-bottom: 8px; }
+.editor.factor .card span { display: block; font-size: 12px; color: var(--muted); }
+.editor.factor .card:hover, .editor.factor .type:hover { background: var(--wash); }
+.editor.factor .card:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+.editor.factor .types { display: grid; gap: 8px; }
+.editor.factor .type { display: grid; grid-template-columns: 18px 112px 1fr; gap: 16px; align-items: center; padding: 11px 16px; text-align: left; }
+.editor.factor .type span { font-size: 12px; color: var(--muted); }
+.editor.factor .selected, .editor.factor .selected:hover { background: var(--ink); color: var(--paper); }
+.editor.factor .selected span { color: #dddddd; }
+.editor.factor .types + input { margin-top: 10px; }
+.editor.factor .scale-ends { font-size: 12px; }
+/* The button row stays at the bottom of the panel, in view, when the panel has to scroll. */
+.editor.factor .actions {
+  position: sticky; bottom: -30px; z-index: 1;
+  margin: 0 0 -30px; padding: 24px 0 30px;
+  border-top: var(--border); background: var(--paper);
+}
+.editor.factor .actions button { padding: 10px 28px; }
+@media (max-width: 860px) {
+  .editor.factor .columns { grid-template-columns: 1fr; gap: 0; }
+}
+.editor.inline textarea { resize: none; overflow: hidden; line-height: 1.45; font-style: italic; border: 1px dashed var(--ink); }
+.editor.form.factor.aim { width: min(640px, calc(100% - 24px)); }
+
+/* Confirmation dialog */
+#dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+}
+.dialog-box { width: 400px; padding: 32px; background: var(--paper); border: var(--border); }
+.dialog-box p { margin: 0 0 28px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* "Why is that?" appears on a factor while the pointer is over it, and not while dragging. */
+.why-button { display: none; }
+[data-item-id]:hover .why-button { display: inline; }
+#board.busy .why-button { display: none; }
+
+/* The choices shown at the middle of a selected connection: line, one way, both ways, reverse. */
+#connection-menu { position: absolute; z-index: 4; display: flex; transform: translate(-50%, 14px); background: var(--paper); }
+#connection-menu button { padding: 5px 10px; font-size: 12px; white-space: nowrap; }
+#connection-menu button + button { border-left: 0; }
+
+/* A note being typed: no connection handle or resize grip, and a frame around the text box to drag it by. */
+#board.typing [data-handle], #board.typing [data-resize] { display: none; }
+.editor.inline { box-sizing: content-box; padding: 10px; margin: -10px; background: transparent; cursor: move; }
+.editor.inline textarea { cursor: text; background: var(--paper); }

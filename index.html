@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Brokers tool</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header id="toolbar">
+    <span class="title">Brokers tool</span>
+    <span class="group">
+      <button id="instructions-toggle" type="button" aria-expanded="false" aria-controls="instructions-panel">Instructions</button>
+    </span>
+    <span class="group">
+      <button id="add-factor" type="button">+ Factor</button>
+      <button id="add-action" type="button">+ Action</button>
+      <button id="add-note" type="button">+ Note</button>
+    </span>
+    <span class="group right">
+      <button id="demo" type="button" aria-pressed="false">Demo</button>
+    </span>
+    <!-- Hidden for now; set FILE_BUTTONS to true in js/config.js to bring them back. -->
+    <span class="group" id="file-buttons" hidden>
+      <button id="export" type="button">Export</button>
+      <button id="open" type="button">Open board file</button>
+      <button id="new" type="button">New board</button>
+    </span>
+    <input type="file" id="file-input" accept=".json,application/json" hidden>
+  </header>
+
+  <div id="notice" hidden>
+    <span id="notice-text"></span>
+    <button id="notice-close" type="button">Dismiss</button>
+  </div>
+
+  <main id="stage">
+    <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div id="instructions-panel" class="panel left" hidden>
+      <div class="body">
+        <ol id="instructions-list"></ol>
+        <ul id="instructions-tips"></ul>
+      </div>
+    </div>
+
+    <p id="board-hint"></p>
+
+    <div id="connection-menu" hidden>
+      <button type="button" data-arrow="none"></button>
+      <button type="button" data-arrow="one"></button>
+      <button type="button" data-arrow="both"></button>
+      <button type="button" data-arrow="reverse"></button>
+    </div>
+
+    <div id="editor" class="editor" hidden></div>
+  </main>
+
+  <div id="dialog" hidden>
+    <div class="dialog-box">
+      <p id="dialog-text"></p>
+      <div class="dialog-actions">
+        <button id="dialog-cancel" type="button">Cancel</button>
+        <button id="dialog-ok" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/demo.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/io.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
